@@ -1,0 +1,19 @@
+
+# Node.js dependencies (exclude node_modules, as we'll install inside container)
+node_modules/
+# Build output
+dist/
+# Logs
+*.log
+# Environment files
+*.env.local
+# Git repository files
+.git/
+.gitignore
+# IDE files
+.vscode/
+.idea/
+# MacOS system files
+.DS_Store
+# Documentation (if not needed in container)
+*.md
