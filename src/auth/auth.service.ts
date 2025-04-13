@@ -3,18 +3,20 @@ import { BadRequestError } from 'src/common/errors';
 import bcrypt from 'bcrypt';
 import { PrismaService } from 'src/prisma.service';
 import { LoginDto } from './dto/login.dto';
-import { Prisma, Users } from '@prisma/client';
 import { CreateUserDto } from './dto/create.user.dto';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class AuthService {
   constructor(private prisma: PrismaService) {}
 
-  async validateUser(loginDTO: LoginDto): Promise<Users> {
+  async validateUser(loginDTO: LoginDto) {
     const { emailOrUsername, password } = loginDTO;
     try {
-      const user = await this.prisma.users.findFirst({
-        where: { OR: [{ email: emailOrUsername }, { name: emailOrUsername }] },
+      const user = await this.prisma.user.findFirst({
+        where: {
+          OR: [{ email: emailOrUsername }, { user_name: emailOrUsername }],
+        },
       });
 
       if (!user || !user.password) {
@@ -35,15 +37,15 @@ export class AuthService {
     }
   }
 
-  async registerUser(createUserDto: CreateUserDto): Promise<Users> {
+  async registerUser(createUserDto: CreateUserDto) {
     const { name, email, password } = createUserDto;
 
     try {
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      const newUser = await this.prisma.users.create({
+      const newUser = await this.prisma.user.create({
         data: {
-          name,
+          user_name: name,
           email,
           password: hashedPassword,
         },
@@ -52,7 +54,7 @@ export class AuthService {
       return newUser;
     } catch (error: unknown) {
       if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error instanceof PrismaClientKnownRequestError &&
         error.code === 'P2002'
       ) {
         throw new BadRequestError('Account with this email already exists');

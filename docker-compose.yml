@@ -17,7 +17,7 @@ services:
 
   postgres:
     image: postgres:15
-    container_name: socialmedia-db
+    container_name: nestjs-db
     ports:
       - '${POSTGRES_PORT}:5432'
     environment:
